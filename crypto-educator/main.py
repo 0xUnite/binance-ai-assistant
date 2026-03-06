@@ -1,7 +1,7 @@
 # Crypto Educator
 import os
 import requests
-from openai import OpenAI
+# from openai import OpenAI  # Using OpenClaw AI instead
 
 # Configuration
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")

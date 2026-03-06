@@ -13,7 +13,7 @@ from utils.binance_api import (
 
 # OpenAI for AI responses (optional)
 try:
-    from openai import OpenAI
+    # from openai import OpenAI  # Using OpenClaw AI instead
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
     client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
 except:
