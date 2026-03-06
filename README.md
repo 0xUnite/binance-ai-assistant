@@ -13,6 +13,28 @@
 - ✅ 支持 AI 增强版本
 - ✅ 支持 Twitter 推文串
 - ✅ 包含实时数据 + 技术指标 + 巨鲸动向
+
+### 🌐 Web 仪表盘 (新增!)
+- ✅ 实时价格展示
+- ✅ K线图表 (Chart.js)
+- ✅ 技术信号显示
+- ✅ 热门代币排行
+- ✅ 响应式设计
+
+### 🔬 策略回测 (新增!)
+- ✅ RSI 策略回测
+- ✅ MA 交叉策略回测
+- ✅ MACD 策略回测
+- ✅ 收益率统计
+- ✅ 胜率统计
+- ✅ 最大回撤计算
+
+### 🐋 真实巨鲸数据 (增强!)
+- ✅ Open Interest 实时数据
+- ✅ 多空比分析
+- ✅ 资金费率监控
+- ✅ 清算区域计算
+- ✅ 大额交易追踪
 - `/start` - 启动菜单
 - `/portfolio` - 查看仓位
 - `/balance` - 账户余额
@@ -101,21 +123,21 @@ python api_server/main.py
 ```
 binance-ai-assistant/
 ├── telegram_bot/          # 🤖 Telegram Bot
-│   └── main.py
 ├── ai_assistant/          # 🤖 AI 智能助手
-│   └── main.py
 ├── api_server/            # 🌐 REST API
+├── web_ui/                # 🌐 Web 仪表盘 (新增!)
 │   └── main.py
-├── post_generator/        # 📝 AI Post 生成器 (新增!)
-│   └── main.py
+├── post_generator/        # 📝 AI Post 生成器
 ├── trading-bot/           # 📈 交易机器人
+├── backtest/              # 🔬 策略回测 (新增!)
+│   └── main.py
 ├── signal-alerts/         # 🔔 价格提醒
 ├── portfolio-tracker/     # 💼 组合追踪
 ├── indicators/            # 📊 技术指标库
-│   └── indicators.py
 ├── utils/
 │   ├── binance_api.py     # Binance API
 │   ├── whale_tracker.py   # 🐋 巨鲸追踪
+│   ├── whale_data.py      # 🐋 真实数据 (新增!)
 │   └── position_tracker.py # 💰 仓位追踪
 └── requirements.txt
 ```
