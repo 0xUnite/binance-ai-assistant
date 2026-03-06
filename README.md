@@ -2,7 +2,7 @@
 
 功能强大的 Binance 智能交易助手
 
-## 🆕 v4.2 - 参赛最终版
+## 🆕 v4.3 - 参赛最终版
 
 基于 OpenClaw AI Framework 构建，提供全方位的 Binance 交易支持。
 
@@ -21,6 +21,7 @@
 - `/analyze BTC` - 市场分析
 - `/trade SOL` - 交易计划
 - `/top` - 热门代币
+- `/copy SOL` - 跟单交易
 - 自然语言对话支持
 
 ### 📊 市场数据
@@ -88,6 +89,18 @@
 - ✅ 盈亏实时计算
 - ✅ 交易历史记录
 
+### 💑 共同账户 (新增!)
+- ✅ 情侣/搭档共管储蓄
+- ✅ AI监督执行规则
+- ✅ 需要双方同意才能取款
+- ✅ 进度追踪和通知
+
+### 👥 社交交易/跟单 (新增!)
+- ✅ Smart Money 信号追踪
+- ✅ KOL/巨鲸跟单
+- ✅ 自动复制交易
+- ✅ 跟单历史记录
+
 ## 🚀 快速开始
 
 ```bash
@@ -118,6 +131,15 @@ binance-ai-assistant/
 ├── trading-bot/          # 📈 交易机器人
 ├── indicators/           # 📊 技术指标库
 └── utils/               # 🔧 工具函数
+    ├── binance_api.py
+    ├── whale_tracker.py
+    ├── whale_data.py
+    ├── position_tracker.py
+    ├── multi_chain_scanner.py
+    ├── honeypot_detector.py
+    ├── sim_trading.py
+    ├── joint_account.py    # 💑 共同账户
+    └── social_trading.py  # 👥 社交交易
 ```
 
 ## 🤝 参赛亮点
@@ -130,6 +152,8 @@ binance-ai-assistant/
 ✅ **策略回测** - 3种策略对比
 ✅ **AI 生成** - 一键 Post 生成
 ✅ **模拟交易** - 零风险测试
+✅ **共同账户** - 情侣/搭档共管储蓄
+✅ **社交交易** - Smart Money 跟单
 
 ## ⚠️ 风险提示
 
