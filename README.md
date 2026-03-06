@@ -8,7 +8,11 @@
 
 ## ✨ 功能特性
 
-### 🤖 Telegram Bot 界面
+### 📝 AI Post 生成器 (新增!)
+- ✅ 一键生成市场分析推文
+- ✅ 支持 AI 增强版本
+- ✅ 支持 Twitter 推文串
+- ✅ 包含实时数据 + 技术指标 + 巨鲸动向
 - `/start` - 启动菜单
 - `/portfolio` - 查看仓位
 - `/balance` - 账户余额
@@ -102,6 +106,8 @@ binance-ai-assistant/
 │   └── main.py
 ├── api_server/            # 🌐 REST API
 │   └── main.py
+├── post_generator/        # 📝 AI Post 生成器 (新增!)
+│   └── main.py
 ├── trading-bot/           # 📈 交易机器人
 ├── signal-alerts/         # 🔔 价格提醒
 ├── portfolio-tracker/     # 💼 组合追踪
@@ -109,8 +115,8 @@ binance-ai-assistant/
 │   └── indicators.py
 ├── utils/
 │   ├── binance_api.py     # Binance API
-│   ├── whale_tracker.py   # 🐋 巨鲸追踪 (新增!)
-│   └── position_tracker.py # 💰 仓位追踪 (新增!)
+│   ├── whale_tracker.py   # 🐋 巨鲸追踪
+│   └── position_tracker.py # 💰 仓位追踪
 └── requirements.txt
 ```
 
