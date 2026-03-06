@@ -51,10 +51,17 @@
 
 ### 🎮 模拟交易 (新增!)
 - ✅ 虚拟买入/卖出
-- ✅ 盈亏实时计算
-- ✅ 交易历史记录
+-实时计算
+- ✅ 盈亏 ✅ 交易历史记录
 - ✅ RSI 策略回测
 - ✅ 风险提示
+
+### 🔗 OKX OnchainOS 集成 (新增!)
+- ✅ 0% 服务费交易
+- ✅ 智能钱信号追踪
+- ✅ 免签名交易 (approve + swap)
+- ✅ DEX 聚合报价
+- ✅ 多链支持 (ETH/BSC/Base/SOL)
 - `/start` - 启动菜单
 - `/portfolio` - 查看仓位
 - `/balance` - 账户余额
@@ -159,9 +166,10 @@ binance-ai-assistant/
 │   ├── whale_tracker.py   # 🐋 巨鲸追踪
 │   ├── whale_data.py      # 🐋 真实数据
 │   ├── position_tracker.py # 💰 仓位追踪
-│   ├── multi_chain_scanner.py # 🔗 多链扫描 (新增!)
-│   ├── honeypot_detector.py   # 🔐 代币审计 (新增!)
-│   └── sim_trading.py     # 🎮 模拟交易 (新增!)
+│   ├── multi_chain_scanner.py # 🔗 多链扫描
+│   ├── honeypot_detector.py   # 🔐 代币审计
+│   ├── sim_trading.py     # 🎮 模拟交易
+│   └── okx_onchain.py    # 🔗 OKX OnchainOS (新增!)
 └── requirements.txt
 ```
 
