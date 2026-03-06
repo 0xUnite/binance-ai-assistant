@@ -1,0 +1,12 @@
+# Core dependencies
+requests
+python-dotenv
+
+# AI (optional)
+openai
+
+# API Server
+flask
+
+# Trading Bot
+# ccxt  # For more advanced trading
