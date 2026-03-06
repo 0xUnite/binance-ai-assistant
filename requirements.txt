@@ -8,5 +8,8 @@ openai
 # API Server
 flask
 
-# Trading Bot
-# ccxt  # For more advanced trading
+# Telegram Bot
+python-telegram-bot
+
+# Advanced Trading (optional)
+# ccxt  # Multi-exchange trading

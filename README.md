@@ -1,94 +1,94 @@
-# Binance AI Assistant
+# Binance AI Assistant 🤖
 
-🤖 功能强大的 Binance 智能助手
+功能强大的 Binance 智能交易助手
 
-## 🆕 v3.0 - AI Agent 版 (参赛版本)
+## 🆕 v3.1 - 参赛版本 (Telegram + 巨鲸追踪)
 
-基于 OpenClaw AI Framework 构建，提供全方位的 Binance 服务支持。
+基于 OpenClaw AI Framework 构建，提供全方位的 Binance 交易支持。
 
 ## ✨ 功能特性
+
+### 🤖 Telegram Bot 界面
+- `/start` - 启动菜单
+- `/portfolio` - 查看仓位
+- `/balance` - 账户余额
+- `/analyze BTC` - 市场分析
+- `/token ETH` - 代币信息
+- `/trade SOL` - 交易计划
+- `/top` - 热门代币
+- `/funds` - 资金信息
+- 自然语言对话支持
 
 ### 📊 市场数据查询
 - ✅ 实时价格查询
 - ✅ 24小时行情数据
-- ✅ K线数据（多时间周期）
+- ✅ K线数据 (多时间周期)
 - ✅ 订单簿深度
-- ✅ 最新成交记录
 - ✅ 资金费率查询
-- ✅ 币安Alpha热门代币
+- ✅ 热门代币排行
 
-### 💱 交易辅助
-- ✅ 技术指标分析 (RSI, MACD, MA)
+### 🐋 巨鲸追踪 (新增!)
+- ✅ Open Interest 持仓分析
+- ✅ 大额转账监控
+- ✅ 流动性区域 (清算集群)
+- ✅ 多空比分析
+- ✅ 资金费率情绪
+
+### 📈 技术分析
+- ✅ RSI 指标
+- ✅ MACD 指标
+- ✅ MA 移动平均线
+- ✅ 布林带
 - ✅ 市场趋势判断
 - ✅ 交易信号生成
-- ✅ 交易规则查询
-- ✅ 手续费率查询
 
-### 🤖 AI 智能对话
-- ✅ 自然语言查询市场数据
-- ✅ 智能交易建议
-- ✅ 风险提示
-- ✅ 投资组合分析
+### 💰 仓位管理 (新增!)
+- ✅ 实时盈亏追踪
+- ✅ 止损止盈设置
+- ✅ 历史交易记录
+- ✅ 胜率统计
+- ✅ DCA 补仓策略
 
-### 📈 交易机器人
-- ✅ RSI 策略自动交易
-- ✅ 止损止盈保护
-- ✅ 仓位管理
-- ✅ 交易日志
-
-### 🔔 价格提醒
-- ✅ 价格到达提醒
-- ✅ Telegram 推送
-- ✅ 多币种监控
-
-### 💼 组合追踪
-- ✅ 实时余额查询
-- ✅ 盈亏计算
-- ✅ 资产分布
+### 🎯 交易计划生成 (新增!)
+- ✅ 入场区间推荐
+- ✅ 止损位设置
+- ✅ DCA 补仓位
+- ✅ 目标盈利位
+- ✅ 建议杠杆
 
 ## 🚀 快速开始
 
 ### 安装
 
 ```bash
-# 克隆项目
 git clone https://github.com/0xUnite/binance-ai-assistant.git
 cd binance-ai-assistant
-
-# 安装依赖
 pip install -r requirements.txt
 ```
 
-### 配置环境变量
+### 配置
 
 ```bash
-# 创建 .env 文件
+# 复制配置模板
 cp .env.example .env
 
-# 编辑 .env，填入你的 API Keys
+# 编辑 .env 文件
 BINANCE_API_KEY=your_api_key
 BINANCE_SECRET_KEY=your_secret_key
+TELEGRAM_BOT_TOKEN=your_telegram_token
 OPENAI_API_KEY=your_openai_key  # 可选
-TELEGRAM_BOT_TOKEN=your_token   # 可选
-TELEGRAM_CHAT_ID=your_chat_id   # 可选
 ```
 
-### 启动服务
+### 启动
 
 ```bash
-# 启动 AI 助手 (交互式)
+# Telegram Bot (推荐)
+python telegram_bot/main.py
+
+# AI 助手
 python ai_assistant/main.py
 
-# 启动交易机器人
-python trading-bot/main.py
-
-# 启动价格提醒
-python signal-alerts/main.py
-
-# 查看组合
-python portfolio-tracker/main.py
-
-# 启动 API 服务
+# API 服务
 python api_server/main.py
 ```
 
@@ -96,91 +96,94 @@ python api_server/main.py
 
 ```
 binance-ai-assistant/
-├── ai_assistant/         # 🤖 AI 智能助手
-│   ├── main.py
-│   └── prompts.py
-├── api_server/           # 🌐 REST API 服务
+├── telegram_bot/          # 🤖 Telegram Bot
 │   └── main.py
-├── trading-bot/          # 📈 交易机器人
+├── ai_assistant/          # 🤖 AI 智能助手
 │   └── main.py
-├── signal-alerts/        # 🔔 价格提醒
+├── api_server/            # 🌐 REST API
 │   └── main.py
-├── portfolio-tracker/    # 💼 组合追踪
-│   └── main.py
-├── crypto_educator/      # 📚 加密教育
-│   └── main.py
-├── indicators/           # 📊 技术指标库
+├── trading-bot/           # 📈 交易机器人
+├── signal-alerts/         # 🔔 价格提醒
+├── portfolio-tracker/     # 💼 组合追踪
+├── indicators/            # 📊 技术指标库
 │   └── indicators.py
-├── utils/                # 🔧 工具函数
-│   └── binance_api.py
+├── utils/
+│   ├── binance_api.py     # Binance API
+│   ├── whale_tracker.py   # 🐋 巨鲸追踪 (新增!)
+│   └── position_tracker.py # 💰 仓位追踪 (新增!)
 └── requirements.txt
 ```
 
-## 🤖 AI 助手使用示例
+## 🐋 巨鲸追踪示例
 
+```python
+from utils.whale_tracker import get_whale_report, get_open_interest
+
+# 获取 BTC 巨鲸报告
+print(get_whale_report("BTC"))
+
+# 输出:
+# 🐋 BTC 巨鲸分析
+# 
+# 📊 合约持仓 (OI)
+# 总持仓: $15.6B
+# 24h变化: +5.2%
+# 多空比: 52.3% / 47.7%
+# 
+# 🎭 市场情绪: 🟢 Bullish
 ```
-❓ 你: BTC 现在多少钱？
 
-🤖 AI: BTC 目前价格 $70,500，24小时涨幅 +2.3%
+## 💰 仓位追踪示例
 
-❓ 你: 给我看看 ETH 的技术分析
+```python
+from utils.position_tracker import PositionTracker
 
-🤖 AI: ETH/USDT 技术分析:
-- RSI(14): 65.4 (中性偏强)
-- MACD: 金叉信号
-- MA(20): $3,450 (支撑位)
-- 趋势: 偏强，建议观望
+tracker = PositionTracker("user123")
 
-❓ 你: 有什么 Alpha 币推荐？
+# 开仓
+tracker.open_position("BTCUSDT", 68000, 0.1, leverage=3, stop_loss=65000)
 
-🤖 AI: 当前币安 Alpha 热门:
-1. $DEEP - 涨幅 25%
-2. $VELA - 涨幅 18%
-3. $RIX - 涨幅 12%
+# 查看持仓
+prices = {"BTCUSDT": 70000}
+print(tracker.get_positions_summary(prices))
+
+# 平仓
+trade = tracker.close_position("BTCUSDT", 71000, "take_profit")
+print(f"盈亏: ${trade['pnl']:+.2f}")
 ```
 
 ## 📡 API 接口
 
-### 市场数据
-
 ```bash
-# 查询价格
+# 市场数据
 GET /api/price/BTCUSDT
-
-# 24小时行情
 GET /api/ticker/BTCUSDT
-
-# K线数据
-GET /api/klines/BTCUSDT?interval=1h&limit=100
-
-# 订单簿
+GET /api/klines?symbol=BTCUSDT&interval=1h
 GET /api/depth/BTCUSDT
+GET /api/top
 
-# 资金费率
-GET /api/funding/BTCUSDT
-```
-
-### 技术分析
-
-```bash
-# 市场分析
+# 技术分析
 GET /api/analysis/BTCUSDT
+GET /api/rsi/BTCUSDT
+GET /api/macd/BTCUSDT
 ```
 
 ## 🤝 竞赛参赛说明
 
-本项目是为 Binance AI Assistant 竞赛 (2026年3月) 开发。
-
 **特色亮点：**
-1. 基于 OpenClaw 框架，原生支持 Claude AI
-2. 完整的技术指标分析 (RSI, MACD, MA)
-3. 实时市场数据 + AI 智能对话
-4. 可扩展的 API 服务架构
+1. 🤖 基于 OpenClaw 框架的 Telegram Bot
+2. 🐋 巨鲸活动追踪 + OI 持仓分析
+3. 📈 专业技术指标 (RSI, MACD, MA, BB)
+4. 💰 完整仓位管理系统
+5. 🎯 AI 交易计划生成
+
+## ⚠️ 风险提示
+
+- 本项目所有交易建议仅供参考
+- 不构成投资建议
+- 投资有风险，入市需谨慎
+- 请只在可承受损失的资金范围内交易
 
 ## 📄 许可证
 
 MIT License
-
-## ⚠️ 风险提示
-
-本项目所有交易建议仅供参考，不构成投资建议。投资有风险，入市需谨慎。
