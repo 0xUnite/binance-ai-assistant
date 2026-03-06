@@ -35,6 +35,26 @@
 - ✅ 资金费率监控
 - ✅ 清算区域计算
 - ✅ 大额交易追踪
+
+### 🔗 多链热点扫描 (新增!)
+- ✅ Solana 热点代币
+- ✅ BSC 热点代币
+- ✅ Base 热点代币
+- ✅ 实时行情监控
+
+### 🔐 代币安全审计 (新增!)
+- ✅ Honeypot 检测
+- ✅ 合约安全分析
+- ✅ 流动性检查
+- ✅ 黑名单检测
+- ✅ 批量扫描
+
+### 🎮 模拟交易 (新增!)
+- ✅ 虚拟买入/卖出
+- ✅ 盈亏实时计算
+- ✅ 交易历史记录
+- ✅ RSI 策略回测
+- ✅ 风险提示
 - `/start` - 启动菜单
 - `/portfolio` - 查看仓位
 - `/balance` - 账户余额
@@ -137,8 +157,11 @@ binance-ai-assistant/
 ├── utils/
 │   ├── binance_api.py     # Binance API
 │   ├── whale_tracker.py   # 🐋 巨鲸追踪
-│   ├── whale_data.py      # 🐋 真实数据 (新增!)
-│   └── position_tracker.py # 💰 仓位追踪
+│   ├── whale_data.py      # 🐋 真实数据
+│   ├── position_tracker.py # 💰 仓位追踪
+│   ├── multi_chain_scanner.py # 🔗 多链扫描 (新增!)
+│   ├── honeypot_detector.py   # 🔐 代币审计 (新增!)
+│   └── sim_trading.py     # 🎮 模拟交易 (新增!)
 └── requirements.txt
 ```
 
