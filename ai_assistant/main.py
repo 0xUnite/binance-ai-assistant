@@ -11,13 +11,8 @@ from utils.binance_api import (
     get_announcements, get_all_prices
 )
 
-# OpenAI for AI responses (optional)
-try:
-    # from openai import OpenAI  # Using OpenClaw AI instead
-    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
-    client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
-except:
-    client = None
+# OpenClaw AI (built-in)
+from utils.ai_helper import ask_ai, generate_trading_idea
 
 class BinanceAI:
     """Binance AI Assistant"""
