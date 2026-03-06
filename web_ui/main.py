@@ -67,6 +67,7 @@ HTML = '''
             <a href="#" onclick="showPage('dashboard')">仪表盘</a>
             <a href="#" onclick="showPage('analysis')">分析</a>
             <a href="#" onclick="showPage('whales')">巨鲸</a>
+            <a href="#" onclick="showPage('alpha')">Alpha</a>
             <a href="#" onclick="showPage('multi')">多链</a>
             <a href="#" onclick="showPage('safety')">安全</a>
             <a href="#" onclick="showPage('copy')">跟单</a>
@@ -125,6 +126,11 @@ HTML = '''
                     </div>
                     <div class="whale-alert"><h4>📉 清算区域</h4><p>支撑: ${data.liquidation.major_support?.join(', ') || 'N/A'}</p><p>阻力: ${data.liquidation.major_resistance?.join(', ') || 'N/A'}</p></div>
                     </div>`;
+            }
+            else if (page === "alpha") {
+                const resp = await fetch("/api/alpha");
+                const data = await resp.json();
+                content.innerHTML = `<div class="card"><h3>🎯 Alpha 探测雷达</h3><pre style="white-space:pre-wrap;font-size:14px">${data.report}</pre><button class="btn" onclick="loadPage('alpha')">刷新</button></div>`;
             }
             else if (page === "multi") {
                 const resp = await fetch("/api/multichain");
@@ -279,3 +285,8 @@ if __name__ == "__main__":
     port = int(os.getenv("PORT", 3000))
     print(f"🌐 Starting Complete Web Dashboard on http://localhost:{port}")
     app.run(host='0.0.0.0', port=port, debug=False)
+
+@app.route('/api/alpha')
+def alpha():
+    from utils.alpha_radar import get_alpha_signals
+    return jsonify({"report": get_alpha_signals()})
