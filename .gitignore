@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Runtime state
+/data/*.db
+/data/*.sqlite
+/data/*.sqlite3

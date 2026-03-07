@@ -3,7 +3,13 @@ Binance AI API Server
 REST API for all Binance data
 """
 import os
+import sys
 from flask import Flask, jsonify, request
+
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
 from indicators.indicators import analyze_market, calculate_rsi, calculate_macd
 from utils.binance_api import (
     get_price, get_24h_ticker, get_klines, get_depth,

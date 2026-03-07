@@ -5,6 +5,11 @@ Commands: /start, /portfolio, /analyze, /token, /trade, etc.
 import os
 import sys
 import asyncio
+
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 from indicators.indicators import analyze_market
@@ -309,11 +314,14 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_input_lower = user_input.lower()
     
     if "btc" in user_input_lower or "比特币" in user_input_lower:
-        await analyze_command(update, context, ["BTC"])
+        context.args = ["BTC"]
+        await analyze_command(update, context)
     elif "eth" in user_input_lower or "以太坊" in user_input_lower:
-        await analyze_command(update, context, ["ETH"])
+        context.args = ["ETH"]
+        await analyze_command(update, context)
     elif "sol" in user_input_lower:
-        await analyze_command(update, context, ["SOL"])
+        context.args = ["SOL"]
+        await analyze_command(update, context)
     elif "top" in user_input_lower or "热门" in user_input_lower:
         await top_command(update, context)
     elif "portfolio" in user_input_lower or "仓位" in user_input_lower:

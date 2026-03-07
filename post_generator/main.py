@@ -3,6 +3,12 @@ AI Post Generator for Binance
 Generate ready-to-post market insights with one command
 """
 import os
+import sys
+
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
 from indicators.indicators import analyze_market
 from utils.binance_api import get_price, get_24h_ticker, get_klines
 from utils.whale_tracker import get_open_interest, get_market_sentiment

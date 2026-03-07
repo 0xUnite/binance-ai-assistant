@@ -1,162 +1,158 @@
-# Binance AI Assistant 🤖
+# Binance AI Assistant
 
-功能强大的 Binance 智能交易助手
+Binance AI 交易助手，包含 Web 仪表盘、API 服务、Telegram Bot、CLI 助手，并新增生产级用户系统与风控持久化能力。
 
-## 🆕 v4.3 - 参赛最终版
+## 更新亮点（生产增强版）
+- 修复核心运行问题与语法错误（可直接启动）
+- Web 端全面重构（响应式 + 统一交互 + 错误处理）
+- 新增用户系统：注册、登录、鉴权 token
+- 新增 SQLite 持久化：用户、守护器配置、守护器状态、交易日志
+- 新增风控能力：
+  - 仓位风险计算器
+  - 交易纪律守护器（交易上限/连亏冷静期）
+  - 可配置守护器规则（按用户隔离）
+- 新增交易日志（按用户隔离、可复盘）
 
-基于 OpenClaw AI Framework 构建，提供全方位的 Binance 交易支持。
+## 功能概览
+- Web 仪表盘：价格、K线、信号、巨鲸、多链、安全审计、发帖生成
+- AI 助手：价格查询、市场分析、订单簿、热门代币、公告、自然语言对话
+- API Server：行情、技术分析、账户查询、新闻
+- Telegram Bot：命令式市场分析与交易计划
 
-## ✨ 核心功能
+## 目录结构
+```text
+binance-ai-assistant/
+├── ai_assistant/
+├── api_server/
+├── web_ui/
+├── telegram_bot/
+├── post_generator/
+├── indicators/
+├── utils/
+│   ├── binance_api.py
+│   ├── user_guardrails.py
+│   ├── persistence.py
+│   └── ...
+├── data/
+│   └── .gitkeep
+├── requirements.txt
+└── README.md
+```
 
-### 🌐 Web 仪表盘
-- ✅ 实时价格展示
-- ✅ K线图表 (Chart.js)
-- ✅ 技术信号显示
-- ✅ 热门代币排行
-- ✅ 响应式设计
+## 环境要求
+- Python 3.10+
+- pip
 
-### 🤖 Telegram Bot
-- `/start` - 启动菜单
-- `/portfolio` - 查看仓位
-- `/analyze BTC` - 市场分析
-- `/trade SOL` - 交易计划
-- `/top` - 热门代币
-- `/copy SOL` - 跟单交易
-- 自然语言对话支持
-
-### 📊 市场数据
-- ✅ 实时价格查询
-- ✅ 24小时行情数据
-- ✅ K线数据 (多时间周期)
-- ✅ 订单簿深度
-- ✅ 资金费率查询
-- ✅ 热门代币排行
-
-### 📈 技术分析
-- ✅ RSI 指标
-- ✅ MACD 指标
-- ✅ MA 移动平均线
-- ✅ 布林带
-- ✅ 市场趋势判断
-- ✅ 交易信号生成
-
-### 🐋 巨鲸追踪
-- ✅ Open Interest 持仓分析
-- ✅ 大额转账监控
-- ✅ 流动性区域 (清算集群)
-- ✅ 多空比分析
-- ✅ 资金费率情绪
-
-### 🔗 多链热点扫描
-- ✅ Solana 热点代币
-- ✅ BSC 热点代币
-- ✅ Base 热点代币
-- ✅ 实时行情监控
-
-### 🔐 代币安全审计
-- ✅ Honeypot 检测
-- ✅ 合约安全分析
-- ✅ 流动性检查
-- ✅ 黑名单检测
-
-### 💰 仓位管理
-- ✅ 实时盈亏追踪
-- ✅ 止损止盈设置
-- ✅ 历史交易记录
-- ✅ 胜率统计
-
-### 🎯 交易计划生成
-- ✅ 入场区间推荐
-- ✅ 止损位设置
-- ✅ DCA 补仓位
-- ✅ 目标盈利位
-- ✅ 建议杠杆
-
-### 📝 AI Post 生成器
-- ✅ 一键生成市场分析推文
-- ✅ 支持 Twitter 推文串
-- ✅ 包含实时数据 + 技术指标
-
-### 🔬 策略回测
-- ✅ RSI 策略回测
-- ✅ MA 交叉策略回测
-- ✅ MACD 策略回测
-- ✅ 收益率统计
-- ✅ 最大回撤计算
-
-### 🎮 模拟交易
-- ✅ 虚拟买入/卖出
-- ✅ 盈亏实时计算
-- ✅ 交易历史记录
-
-### 💑 共同账户 (新增!)
-- ✅ 情侣/搭档共管储蓄
-- ✅ AI监督执行规则
-- ✅ 需要双方同意才能取款
-- ✅ 进度追踪和通知
-
-### 👥 社交交易/跟单 (新增!)
-- ✅ Smart Money 信号追踪
-- ✅ KOL/巨鲸跟单
-- ✅ 自动复制交易
-- ✅ 跟单历史记录
-
-## 🚀 快速开始
-
+## 安装
 ```bash
 git clone https://github.com/0xUnite/binance-ai-assistant.git
 cd binance-ai-assistant
 pip install -r requirements.txt
+```
 
-# 启动 Web 仪表盘
+## 环境变量
+可选但推荐配置：
+
+```bash
+# Web/Auth
+export APP_SECRET_KEY="replace-with-a-strong-secret"
+
+# Binance API（如需账户/交易相关能力）
+export BINANCE_API_KEY="your_key"
+export BINANCE_SECRET_KEY="your_secret"
+
+# Telegram（如需启动 Bot）
+export TELEGRAM_BOT_TOKEN="your_bot_token"
+
+# SQLite 路径（可选）
+export BINANCE_ASSISTANT_DB="/absolute/path/assistant.db"
+```
+
+## 启动方式
+
+### 1) 启动 Web 仪表盘
+```bash
 python web_ui/main.py
+```
+默认地址：`http://localhost:3000`
 
-# 启动 Telegram Bot
+### 2) 启动 API 服务
+```bash
+python api_server/main.py
+```
+健康检查：`GET /api/health`
+
+### 3) 启动 CLI AI 助手
+```bash
+python ai_assistant/main.py
+```
+
+### 4) 启动 Telegram Bot
+```bash
 python telegram_bot/main.py
-
-# 策略回测
-python backtest/main.py BTCUSDT
 ```
 
-## 📁 项目结构
+## Web 端使用说明
 
+### 第一步：注册与登录
+1. 打开页面右上角
+2. 输入用户名和密码
+3. 点击“注册”后再“登录”
+
+### 第二步：使用风控与日志
+- `风控` 页面：
+  - 仓位风险计算器：根据账户规模、风险%、入场/止损自动算数量
+  - 交易纪律守护器：保存规则后，按每笔结果评估是否触发冷静期
+- `日志` 页面：
+  - 记录交易方向、情绪、理由、标签
+  - 自动按当前登录用户隔离
+
+## 新增鉴权 API（Web 后端）
+
+### Auth
+- `POST /api/auth/register`
+  - body: `{ "username": "alice", "password": "secret123" }`
+- `POST /api/auth/login`
+  - body: `{ "username": "alice", "password": "secret123" }`
+  - return: `{ "token": "...", "username": "alice" }`
+- `GET /api/auth/me`
+  - header: `Authorization: Bearer <token>`
+
+### Guardrails
+- `GET /api/guardrails/config`（需登录）
+- `POST /api/guardrails/config`（需登录）
+  - body: `{ "max_trades_per_day": 8, "cooldown_losses": 3, "cooldown_minutes": 45 }`
+- `POST /api/guardrails/evaluate`（需登录）
+  - body: `{ "outcome": "win|loss|open" }`
+
+### Journal
+- `POST /api/journal`（需登录）
+  - body: `{ "symbol":"BTCUSDT", "side":"BUY", "thesis":"breakout", "emotion":"calm", "tags":["breakout"] }`
+- `GET /api/journal?limit=20`（需登录）
+
+## 数据持久化说明
+- 默认数据库文件：`data/assistant.db`
+- 已通过 `.gitignore` 忽略运行时数据库文件
+- 支持通过 `BINANCE_ASSISTANT_DB` 自定义路径
+
+## 常见问题
+
+### 1) `ModuleNotFoundError`
+请从项目根目录执行命令：
+```bash
+cd binance-ai-assistant
+python web_ui/main.py
 ```
-binance-ai-assistant/
-├── telegram_bot/          # 🤖 Telegram Bot
-├── ai_assistant/         # 🤖 AI 智能助手
-├── api_server/           # 🌐 REST API
-├── web_ui/               # 🌐 Web 仪表盘
-├── post_generator/       # 📝 AI Post 生成器
-├── backtest/             # 🔬 策略回测
-├── trading-bot/          # 📈 交易机器人
-├── indicators/           # 📊 技术指标库
-└── utils/               # 🔧 工具函数
-    ├── binance_api.py
-    ├── whale_tracker.py
-    ├── whale_data.py
-    ├── position_tracker.py
-    ├── multi_chain_scanner.py
-    ├── honeypot_detector.py
-    ├── sim_trading.py
-    ├── joint_account.py    # 💑 共同账户
-    └── social_trading.py  # 👥 社交交易
-```
 
-## 🤝 参赛亮点
+### 2) Binance 请求失败
+- 检查网络
+- 检查交易对是否正确（例如 `BTCUSDT`）
+- 部分接口会因权限或区域限制返回错误
 
-✅ **完整产品矩阵** - Web + Telegram + CLI
-✅ **专业技术分析** - RSI/MACD/MA/BB
-✅ **巨鲸活动追踪** - OI + 清算 + 大额交易
-✅ **多链热点** - SOL/BSC/Base 实时监控
-✅ **代币安全** - Honeypot 检测
-✅ **策略回测** - 3种策略对比
-✅ **AI 生成** - 一键 Post 生成
-✅ **模拟交易** - 零风险测试
-✅ **共同账户** - 情侣/搭档共管储蓄
-✅ **社交交易** - Smart Money 跟单
+### 3) 登录后接口仍 401
+- 确认请求头带 `Authorization: Bearer <token>`
+- 确认 `APP_SECRET_KEY` 没有在运行中被修改
 
-## ⚠️ 风险提示
-
-- 本项目所有交易建议仅供参考
-- 不构成投资建议
-- 投资有风险，入市需谨慎
+## 风险提示
+- 本项目仅作研究与演示，不构成投资建议
+- 数字资产波动剧烈，请严格控制风险

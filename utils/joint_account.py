@@ -23,7 +23,7 @@ class JointAccount:
     
     def deposit(self, who: str, amount: float):
         """存款"""
-        self.deposits[who] = amount
+        self.deposits[who] += amount
         self.tx_history.append({
             "type": "DEPOSIT",
             "who": who,
@@ -31,7 +31,7 @@ class JointAccount:
             "time": datetime.now().isoformat()
         })
     
-    def can_withdraw(self, -> tuple amount: float):
+    def can_withdraw(self, amount: float) -> tuple:
         """检查是否可以取款"""
         total = sum(self.deposits.values())
         

@@ -4,6 +4,11 @@ Powered by OpenClaw + Claude
 """
 import os
 import sys
+
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
 from indicators.indicators import analyze_market, calculate_rsi, calculate_ma
 from utils.binance_api import (
     get_price, get_24h_ticker, get_klines, get_depth,
@@ -174,25 +179,13 @@ class BinanceAI:
     
     def chat(self, message: str) -> str:
         """Chat with AI about crypto"""
-        if not client:
-            return "请配置 OPENAI_API_KEY 以使用 AI 对话功能"
-        
         try:
-            response = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[
-                    {"role": "system", "content": """You are a knowledgeable Binance AI assistant.
-You help users with:
-- Cryptocurrency market analysis
-- Binance product information
-- Trading strategies and risk management
-- Technical indicators (RSI, MACD, MA, etc.)
-
-Provide helpful, accurate, and concise answers. Always include risk warnings for trading advice."""},
-                    {"role": "user", "content": message}
-                ]
+            prompt = (
+                "你是 Binance AI 助手。请给出简洁、可执行的建议，"
+                "并附带风险提示。\n\n用户问题："
+                f"{message}"
             )
-            return response.choices[0].message.content
+            return ask_ai(prompt)
         except Exception as e:
             return f"AI 响应失败: {str(e)}"
     
