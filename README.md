@@ -12,6 +12,9 @@ Binance AI 交易助手，包含 Web 仪表盘、API 服务、Telegram Bot、CLI
   - 交易纪律守护器（交易上限/连亏冷静期）
   - 可配置守护器规则（按用户隔离）
 - 新增交易日志（按用户隔离、可复盘）
+- 新增仅开仓建议（现货/合约/链上统一入口，含允许开仓判断）
+- 新增仓位管理（开仓、TP/SL 调整、平仓、PnL 自动计算）
+- 新增每日复盘（按 spot/futures/onchain 分维度统计胜率与净盈亏）
 
 ## 功能概览
 - Web 仪表盘：价格、K线、信号、巨鲸、多链、安全审计、发帖生成
@@ -99,13 +102,21 @@ python telegram_bot/main.py
 2. 输入用户名和密码
 3. 点击“注册”后再“登录”
 
-### 第二步：使用风控与日志
+### 第二步：使用开仓建议、仓位管理、风控与复盘
+- `开仓建议` 页面：
+  - 输入交易对 + 市场类型（spot/futures/onchain）+ 方向（LONG/SHORT）
+  - 系统返回是否允许开仓、置信度、入场区间、止盈止损建议
+- `仓位管理` 页面：
+  - 创建仓位：市场、方向、入场价、数量、杠杆、TP/SL
+  - 管理仓位：修改 TP/SL、一键平仓、自动计算平仓 PnL
 - `风控` 页面：
   - 仓位风险计算器：根据账户规模、风险%、入场/止损自动算数量
   - 交易纪律守护器：保存规则后，按每笔结果评估是否触发冷静期
 - `日志` 页面：
-  - 记录交易方向、情绪、理由、标签
+  - 记录市场类型、方向、结果、PnL、情绪、理由、标签
   - 自动按当前登录用户隔离
+- `复盘` 页面：
+  - 每日汇总总交易数、净盈亏、各市场胜率
 
 ## 新增鉴权 API（Web 后端）
 
@@ -125,10 +136,27 @@ python telegram_bot/main.py
 - `POST /api/guardrails/evaluate`（需登录）
   - body: `{ "outcome": "win|loss|open" }`
 
+### Entry Suggestion（仅开仓建议）
+- `POST /api/entry-suggestion`（需登录）
+  - body: `{ "symbol":"BTCUSDT", "market_type":"spot|futures|onchain", "side":"LONG|SHORT" }`
+  - return: `allow_open/confidence/entry_zone/risk_plan`
+
+### Positions（仓位管理）
+- `POST /api/positions`（需登录）
+  - body: `{ "market_type":"futures", "side":"LONG", "symbol":"BTCUSDT", "entry_price":65000, "quantity":0.01, "leverage":3, "stop_loss":64000, "take_profit_1":66000, "take_profit_2":67000, "take_profit_3":68000 }`
+- `GET /api/positions?status=OPEN|CLOSED&market_type=spot|futures|onchain`（需登录）
+- `POST /api/positions/<id>/risk`（需登录）
+  - body: `{ "stop_loss":64500, "take_profit_1":66200, "take_profit_2":67500, "take_profit_3":69000 }`
+- `POST /api/positions/<id>/close`（需登录）
+  - body: `{ "close_price":66100, "close_reason":"manual|tp|sl" }`
+
 ### Journal
 - `POST /api/journal`（需登录）
-  - body: `{ "symbol":"BTCUSDT", "side":"BUY", "thesis":"breakout", "emotion":"calm", "tags":["breakout"] }`
-- `GET /api/journal?limit=20`（需登录）
+  - body: `{ "symbol":"BTCUSDT", "side":"BUY", "market_type":"futures", "result":"win|loss|open", "pnl":120.5, "thesis":"breakout", "emotion":"calm", "tags":["breakout"] }`
+- `GET /api/journal?limit=20&market_type=spot|futures|onchain`（需登录）
+
+### Daily Review
+- `GET /api/review/daily?date=YYYY-MM-DD`（需登录）
 
 ## 数据持久化说明
 - 默认数据库文件：`data/assistant.db`

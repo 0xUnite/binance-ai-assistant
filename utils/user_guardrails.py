@@ -1,6 +1,7 @@
-"""User guardrails and journaling helpers with SQLite persistence."""
+"""User guardrails, journaling and daily review helpers."""
 from __future__ import annotations
 
+from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List
 
@@ -12,6 +13,8 @@ from utils.persistence import (
     upsert_guardrail_state,
     insert_journal_entry,
     list_journal_entries,
+    list_journal_entries_by_date,
+    list_closed_positions_by_date,
 )
 
 init_db()
@@ -160,6 +163,8 @@ def add_journal_entry(user_id: str, entry: Dict) -> Dict:
         "thesis": entry.get("thesis", ""),
         "emotion": entry.get("emotion", "neutral"),
         "result": entry.get("result", "open"),
+        "market_type": entry.get("market_type", "spot").lower(),
+        "pnl": float(entry.get("pnl", 0) or 0),
         "tags": entry.get("tags", []),
     }
     now = datetime.now(timezone.utc).isoformat()
@@ -170,11 +175,67 @@ def add_journal_entry(user_id: str, entry: Dict) -> Dict:
         thesis=payload["thesis"],
         emotion=payload["emotion"],
         result=payload["result"],
+        market_type=payload["market_type"],
+        pnl=payload["pnl"],
         tags=payload["tags"],
         created_at=now,
     )
 
 
-def list_journal(user_id: str, limit: int = 30) -> List[Dict]:
+def list_journal(user_id: str, limit: int = 30, market_type: str | None = None) -> List[Dict]:
     """Get latest journal entries by user."""
-    return list_journal_entries(user_id=user_id, limit=limit)
+    return list_journal_entries(user_id=user_id, limit=limit, market_type=market_type)
+
+
+def get_daily_review(user_id: str, date_str: str | None = None) -> Dict:
+    """Daily review summary split by market type: spot/futures/onchain."""
+    day = date_str or datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    journals = list_journal_entries_by_date(user_id, day)
+    closed_positions = list_closed_positions_by_date(user_id, day)
+
+    stats = defaultdict(lambda: {"trades": 0, "wins": 0, "losses": 0, "net_pnl": 0.0})
+
+    for item in journals:
+        market = (item.get("market_type") or "spot").lower()
+        pnl = float(item.get("pnl") or 0)
+        result = str(item.get("result") or "").lower()
+
+        stats[market]["trades"] += 1
+        stats[market]["net_pnl"] += pnl
+
+        if result in {"win", "profit", "盈利"} or pnl > 0:
+            stats[market]["wins"] += 1
+        elif result in {"loss", "亏损"} or pnl < 0:
+            stats[market]["losses"] += 1
+
+    for item in closed_positions:
+        market = (item.get("market_type") or "spot").lower()
+        pnl = float(item.get("pnl") or 0)
+        stats[market]["trades"] += 1
+        stats[market]["net_pnl"] += pnl
+        if pnl > 0:
+            stats[market]["wins"] += 1
+        elif pnl < 0:
+            stats[market]["losses"] += 1
+
+    summary = {}
+    for market in ["spot", "futures", "onchain"]:
+        item = stats[market]
+        trades = item["trades"]
+        win_rate = (item["wins"] / trades * 100) if trades else 0
+        summary[market] = {
+            "trades": trades,
+            "wins": item["wins"],
+            "losses": item["losses"],
+            "win_rate": round(win_rate, 2),
+            "net_pnl": round(item["net_pnl"], 2),
+        }
+
+    total_trades = sum(s["trades"] for s in summary.values())
+    total_pnl = sum(s["net_pnl"] for s in summary.values())
+    return {
+        "date": day,
+        "markets": summary,
+        "total_trades": total_trades,
+        "total_net_pnl": round(total_pnl, 2),
+    }

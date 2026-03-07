@@ -30,8 +30,18 @@ from utils.user_guardrails import (
     update_user_guardrail_config,
     add_journal_entry,
     list_journal,
+    get_daily_review,
 )
-from utils.persistence import init_db, create_user, get_user
+from utils.persistence import (
+    init_db,
+    create_user,
+    get_user,
+    insert_position,
+    list_positions,
+    update_position_risk,
+    close_position,
+)
+from utils.trading_advisor import build_entry_suggestion
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("APP_SECRET_KEY", "change-this-in-production")
@@ -201,8 +211,11 @@ HTML = """
       ["copy", "跟单"],
       ["joint", "共同账户"],
       ["post", "发推"],
+      ["planner", "开仓建议"],
+      ["positions", "仓位管理"],
       ["risk", "风控"],
-      ["journal", "日志"]
+      ["journal", "日志"],
+      ["review", "复盘"]
     ];
 
     const nav = document.getElementById("nav");
@@ -435,6 +448,58 @@ HTML = """
             </section>`;
         }
 
+        if (page === "planner") {
+          content.innerHTML = `
+            <section class="card">
+              <h2>仅开仓建议</h2>
+              <p class="muted">给出现货/合约/链上的开仓允许与风控计划（TP/SL）</p>
+              <div class="row">
+                <input id="planSymbol" value="BTCUSDT" placeholder="交易对，如 BTCUSDT" />
+                <select id="planMarket">
+                  <option value="spot">spot</option>
+                  <option value="futures">futures</option>
+                  <option value="onchain">onchain</option>
+                </select>
+                <select id="planSide">
+                  <option value="LONG">LONG</option>
+                  <option value="SHORT">SHORT</option>
+                </select>
+                <button class="btn" onclick="fetchEntrySuggestion()">生成建议</button>
+              </div>
+              <pre id="planResult" style="margin-top:10px"></pre>
+            </section>`;
+        }
+
+        if (page === "positions") {
+          content.innerHTML = `
+            <div class="grid">
+              <section class="card">
+                <h2>创建仓位</h2>
+                <div class="row"><select id="posMarket"><option value="spot">spot</option><option value="futures">futures</option><option value="onchain">onchain</option></select></div>
+                <div class="row"><select id="posSide"><option value="LONG">LONG</option><option value="SHORT">SHORT</option></select></div>
+                <div class="row"><input id="posSymbol" value="BTCUSDT" placeholder="交易对" /></div>
+                <div class="row"><input id="posEntry" type="number" value="65000" placeholder="入场价" /></div>
+                <div class="row"><input id="posQty" type="number" step="0.0001" value="0.01" placeholder="数量" /></div>
+                <div class="row"><input id="posLev" type="number" step="0.1" value="1" placeholder="杠杆" /></div>
+                <div class="row"><input id="posSL" type="number" step="0.0001" placeholder="止损价" /></div>
+                <div class="row"><input id="posTP1" type="number" step="0.0001" placeholder="止盈1" /></div>
+                <div class="row"><input id="posTP2" type="number" step="0.0001" placeholder="止盈2" /></div>
+                <div class="row"><input id="posTP3" type="number" step="0.0001" placeholder="止盈3" /></div>
+                <button class="btn" onclick="createPosition()">创建仓位</button>
+              </section>
+              <section class="card">
+                <h2>我的仓位</h2>
+                <div class="row">
+                  <select id="posStatus"><option value="OPEN">OPEN</option><option value="CLOSED">CLOSED</option></select>
+                  <select id="posFilterMarket"><option value="">all</option><option value="spot">spot</option><option value="futures">futures</option><option value="onchain">onchain</option></select>
+                  <button class="btn" onclick="loadPositions()">刷新</button>
+                </div>
+                <div id="positionsList" style="margin-top:10px"></div>
+              </section>
+            </div>`;
+          await loadPositions();
+        }
+
         if (page === "risk") {
           content.innerHTML = `
             <div class="grid">
@@ -470,13 +535,30 @@ HTML = """
               <h2>交易日志</h2>
               <p class="muted">降低复盘摩擦，记录主观决策和情绪</p>
               <div class="row"><input id="jSymbol" value="BTCUSDT" placeholder="交易对" /></div>
-              <div class="row"><select id="jSide"><option>BUY</option><option>SELL</option></select><select id="jEmotion"><option>neutral</option><option>fear</option><option>fomo</option><option>calm</option></select></div>
+              <div class="row"><select id="jSide"><option>BUY</option><option>SELL</option></select><select id="jMarket"><option value="spot">spot</option><option value="futures">futures</option><option value="onchain">onchain</option></select><select id="jEmotion"><option>neutral</option><option>fear</option><option>fomo</option><option>calm</option></select></div>
+              <div class="row"><input id="jPnl" type="number" step="0.01" placeholder="本单盈亏(USDT)" /><select id="jResult"><option value="open">open</option><option value="win">win</option><option value="loss">loss</option></select></div>
               <div class="row"><input id="jTags" placeholder="标签，逗号分隔 (breakout,news)" /></div>
               <textarea id="jThesis" placeholder="为什么开这笔单？"></textarea>
               <div class="row"><button class="btn" onclick="addJournal()">保存日志</button><button class="btn" onclick="loadJournal()">刷新列表</button></div>
               <div id="journalList" style="margin-top:10px"></div>
             </section>`;
           await loadJournal();
+        }
+
+        if (page === "review") {
+          content.innerHTML = `
+            <section class="card">
+              <h2>每日交易复盘</h2>
+              <p class="muted">按现货/合约/链上维度统计胜率与净盈亏</p>
+              <div class="row">
+                <input id="reviewDate" type="date" />
+                <button class="btn" onclick="loadDailyReview()">生成复盘</button>
+              </div>
+              <pre id="reviewResult" style="margin-top:10px"></pre>
+            </section>`;
+          const now = new Date().toISOString().slice(0, 10);
+          document.getElementById("reviewDate").value = now;
+          await loadDailyReview();
         }
       } catch (e) {
         content.innerHTML = `<section class="card"><h3>加载失败</h3><div class="err">${e.message}</div></section>`;
@@ -552,12 +634,95 @@ HTML = """
       document.getElementById("guardResult").textContent = JSON.stringify(data, null, 2);
     }
 
+    async function fetchEntrySuggestion() {
+      ensureAuth();
+      const payload = {
+        symbol: document.getElementById("planSymbol").value,
+        market_type: document.getElementById("planMarket").value,
+        side: document.getElementById("planSide").value
+      };
+      const data = await apiPost("/api/entry-suggestion", payload);
+      document.getElementById("planResult").textContent = JSON.stringify(data, null, 2);
+    }
+
+    async function createPosition() {
+      ensureAuth();
+      const payload = {
+        market_type: document.getElementById("posMarket").value,
+        side: document.getElementById("posSide").value,
+        symbol: document.getElementById("posSymbol").value,
+        entry_price: Number(document.getElementById("posEntry").value),
+        quantity: Number(document.getElementById("posQty").value),
+        leverage: Number(document.getElementById("posLev").value),
+        stop_loss: Number(document.getElementById("posSL").value || 0) || null,
+        take_profit_1: Number(document.getElementById("posTP1").value || 0) || null,
+        take_profit_2: Number(document.getElementById("posTP2").value || 0) || null,
+        take_profit_3: Number(document.getElementById("posTP3").value || 0) || null
+      };
+      await apiPost("/api/positions", payload);
+      await loadPositions();
+    }
+
+    async function updatePositionRisk(positionId) {
+      ensureAuth();
+      const sl = prompt("新的止损价 (留空则不改)");
+      const tp1 = prompt("新的止盈1价 (留空则不改)");
+      const tp2 = prompt("新的止盈2价 (留空则不改)");
+      const tp3 = prompt("新的止盈3价 (留空则不改)");
+      const payload = {
+        stop_loss: sl ? Number(sl) : null,
+        take_profit_1: tp1 ? Number(tp1) : null,
+        take_profit_2: tp2 ? Number(tp2) : null,
+        take_profit_3: tp3 ? Number(tp3) : null
+      };
+      await apiPost(`/api/positions/${positionId}/risk`, payload);
+      await loadPositions();
+    }
+
+    async function closeOnePosition(positionId) {
+      ensureAuth();
+      const price = prompt("平仓价格");
+      if (!price) return;
+      const reason = prompt("平仓原因", "manual") || "manual";
+      await apiPost(`/api/positions/${positionId}/close`, { close_price: Number(price), close_reason: reason });
+      await loadPositions();
+    }
+
+    async function loadPositions() {
+      ensureAuth();
+      const statusEl = document.getElementById("posStatus");
+      const marketEl = document.getElementById("posFilterMarket");
+      const status = statusEl ? statusEl.value : "OPEN";
+      const market = marketEl ? marketEl.value : "";
+      const data = await apiGet(`/api/positions?status=${encodeURIComponent(status)}&market_type=${encodeURIComponent(market)}`);
+      const html = (data.positions || []).map((p) => `
+        <div class="card" style="margin-top:8px">
+          <b>#${p.id}</b> ${p.market_type} ${p.symbol} ${p.side} ${p.status}<br/>
+          入场: ${Number(p.entry_price).toFixed(4)} | 数量: ${Number(p.quantity).toFixed(6)} | 杠杆: ${Number(p.leverage).toFixed(2)}x<br/>
+          SL: ${p.stop_loss ?? "-"} | TP1: ${p.take_profit_1 ?? "-"} | TP2: ${p.take_profit_2 ?? "-"} | TP3: ${p.take_profit_3 ?? "-"}<br/>
+          ${p.pnl != null ? `PnL: ${Number(p.pnl).toFixed(2)}<br/>` : ""}
+          ${status === "OPEN" ? `<button class="btn" onclick="updatePositionRisk(${p.id})">改TP/SL</button> <button class="btn" onclick="closeOnePosition(${p.id})">平仓</button>` : ""}
+        </div>
+      `).join("") || '<p class="muted">暂无记录</p>';
+      document.getElementById("positionsList").innerHTML = html;
+    }
+
+    async function loadDailyReview() {
+      ensureAuth();
+      const date = document.getElementById("reviewDate").value;
+      const data = await apiGet(`/api/review/daily?date=${encodeURIComponent(date)}`);
+      document.getElementById("reviewResult").textContent = JSON.stringify(data, null, 2);
+    }
+
     async function addJournal() {
       ensureAuth();
       const payload = {
         symbol: document.getElementById("jSymbol").value,
         side: document.getElementById("jSide").value,
+        market_type: document.getElementById("jMarket").value,
         emotion: document.getElementById("jEmotion").value,
+        result: document.getElementById("jResult").value,
+        pnl: Number(document.getElementById("jPnl").value || 0),
         thesis: document.getElementById("jThesis").value,
         tags: (document.getElementById("jTags").value || "").split(",").map(s => s.trim()).filter(Boolean)
       };
@@ -570,7 +735,7 @@ HTML = """
       ensureAuth();
       const data = await apiGet("/api/journal?limit=20");
       const html = data.entries.map((e) =>
-        `<div class="card" style="margin-top:8px"><b>${e.symbol}</b> ${e.side} <span class="pill">${e.emotion}</span> <span class="muted">${e.time}</span><br/><span>${e.thesis || "-"}</span><br/><span class="muted">${(e.tags || []).join(", ")}</span></div>`
+        `<div class="card" style="margin-top:8px"><b>${e.symbol}</b> ${e.side} <span class="pill">${e.market_type}</span> <span class="pill">${e.emotion}</span> <span class="muted">${e.time}</span><br/>结果: ${e.result} | PnL: ${Number(e.pnl || 0).toFixed(2)}<br/><span>${e.thesis || "-"}</span><br/><span class="muted">${(e.tags || []).join(", ")}</span></div>`
       ).join("") || '<p class="muted">暂无日志</p>';
       document.getElementById("journalList").innerHTML = html;
     }
@@ -788,6 +953,95 @@ def alpha():
         return api_ok({"error": str(e)}, 400)
 
 
+@app.route("/api/entry-suggestion", methods=["POST"])
+@auth_required
+def entry_suggestion():
+    try:
+        payload = request.get_json(force=True) or {}
+        result = build_entry_suggestion(
+            symbol=str(payload.get("symbol", "BTCUSDT")),
+            market_type=str(payload.get("market_type", "spot")),
+            side=str(payload.get("side", "LONG")),
+        )
+        return api_ok(result)
+    except Exception as e:
+        return api_ok({"error": str(e)}, 400)
+
+
+@app.route("/api/positions", methods=["GET", "POST"])
+@auth_required
+def positions():
+    try:
+        user_id = str(request.current_user)
+        if request.method == "POST":
+            payload = request.get_json(force=True) or {}
+            entry_price = float(payload.get("entry_price", 0))
+            quantity = float(payload.get("quantity", 0))
+            leverage = float(payload.get("leverage", 1))
+            if entry_price <= 0 or quantity <= 0 or leverage <= 0:
+                return api_ok({"error": "entry_price/quantity/leverage 必须大于0"}, 400)
+            created = insert_position(
+                user_id=user_id,
+                market_type=str(payload.get("market_type", "spot")).lower(),
+                symbol=str(payload.get("symbol", "BTCUSDT")).upper(),
+                side=str(payload.get("side", "LONG")).upper(),
+                entry_price=entry_price,
+                quantity=quantity,
+                leverage=leverage,
+                stop_loss=float(payload.get("stop_loss")) if payload.get("stop_loss") is not None else None,
+                take_profit_1=float(payload.get("take_profit_1")) if payload.get("take_profit_1") is not None else None,
+                take_profit_2=float(payload.get("take_profit_2")) if payload.get("take_profit_2") is not None else None,
+                take_profit_3=float(payload.get("take_profit_3")) if payload.get("take_profit_3") is not None else None,
+                opened_at=datetime.now(timezone.utc).isoformat(),
+            )
+            return api_ok({"position": created}, 201)
+
+        status = str(request.args.get("status", "OPEN")).upper()
+        market_type = request.args.get("market_type", "").strip().lower() or None
+        data = list_positions(user_id=user_id, status=status, market_type=market_type)
+        return api_ok({"positions": data})
+    except Exception as e:
+        return api_ok({"error": str(e)}, 400)
+
+
+@app.route("/api/positions/<int:position_id>/risk", methods=["POST"])
+@auth_required
+def positions_risk(position_id: int):
+    try:
+        payload = request.get_json(force=True) or {}
+        updated = update_position_risk(
+            user_id=str(request.current_user),
+            position_id=position_id,
+            stop_loss=float(payload.get("stop_loss")) if payload.get("stop_loss") is not None else None,
+            take_profit_1=float(payload.get("take_profit_1")) if payload.get("take_profit_1") is not None else None,
+            take_profit_2=float(payload.get("take_profit_2")) if payload.get("take_profit_2") is not None else None,
+            take_profit_3=float(payload.get("take_profit_3")) if payload.get("take_profit_3") is not None else None,
+        )
+        if not updated:
+            return api_ok({"error": "仓位不存在或已平仓"}, 404)
+        return api_ok({"position": updated})
+    except Exception as e:
+        return api_ok({"error": str(e)}, 400)
+
+
+@app.route("/api/positions/<int:position_id>/close", methods=["POST"])
+@auth_required
+def positions_close(position_id: int):
+    try:
+        payload = request.get_json(force=True) or {}
+        closed = close_position(
+            user_id=str(request.current_user),
+            position_id=position_id,
+            close_price=float(payload.get("close_price", 0)),
+            close_reason=str(payload.get("close_reason", "manual")),
+        )
+        if not closed:
+            return api_ok({"error": "仓位不存在或已平仓"}, 404)
+        return api_ok({"position": closed})
+    except Exception as e:
+        return api_ok({"error": str(e)}, 400)
+
+
 @app.route("/api/risk/position-size", methods=["POST"])
 def risk_position_size():
     try:
@@ -849,7 +1103,19 @@ def journal():
             return api_ok({"entry": saved}, 201)
 
         limit = int(request.args.get("limit", 30))
-        return api_ok({"entries": list_journal(user_id, limit)})
+        market_type = request.args.get("market_type", "").strip().lower() or None
+        return api_ok({"entries": list_journal(user_id, limit, market_type)})
+    except Exception as e:
+        return api_ok({"error": str(e)}, 400)
+
+
+@app.route("/api/review/daily", methods=["GET"])
+@auth_required
+def review_daily():
+    try:
+        day = request.args.get("date", "").strip() or None
+        result = get_daily_review(str(request.current_user), day)
+        return api_ok(result)
     except Exception as e:
         return api_ok({"error": str(e)}, 400)
 
