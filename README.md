@@ -15,6 +15,7 @@ Binance AI 交易助手，包含 Web 仪表盘、API 服务、Telegram Bot、CLI
 - 新增仅开仓建议（现货/合约/链上统一入口，含允许开仓判断）
 - 新增仓位管理（开仓、TP/SL 调整、平仓、PnL 自动计算）
 - 新增每日复盘（按 spot/futures/onchain 分维度统计胜率与净盈亏）
+- 集成 DumpDetective：一键出货风险扫描（合约安全 + 卖压 + Smart Money + 热度代理 + Creator 钱包可用性）
 
 ## 功能概览
 - Web 仪表盘：价格、K线、信号、巨鲸、多链、安全审计、发帖生成
@@ -103,6 +104,9 @@ python telegram_bot/main.py
 3. 点击“注册”后再“登录”
 
 ### 第二步：使用开仓建议、仓位管理、风控与复盘
+- `出货侦探` 页面：
+  - 只需输入合约地址（creator 地址可选）即可自动完成多维扫描
+  - 输出统一 `LOW / MEDIUM-HIGH / HIGH` 风险评级和证据
 - `开仓建议` 页面：
   - 输入交易对 + 市场类型（spot/futures/onchain）+ 方向（LONG/SHORT）
   - 系统返回是否允许开仓、置信度、入场区间、止盈止损建议
@@ -157,6 +161,11 @@ python telegram_bot/main.py
 
 ### Daily Review
 - `GET /api/review/daily?date=YYYY-MM-DD`（需登录）
+
+### DumpDetective Integration
+- `POST /api/dump-detective/scan`
+  - body: `{ "contract_address":"0x...", "chain":"bsc|base|solana", "creator_address":"0x...(optional)" }`
+  - 无需登录，单次请求返回完整扫描结果
 
 ## 数据持久化说明
 - 默认数据库文件：`data/assistant.db`

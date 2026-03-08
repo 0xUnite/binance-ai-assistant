@@ -42,6 +42,7 @@ from utils.persistence import (
     close_position,
 )
 from utils.trading_advisor import build_entry_suggestion
+from utils.dump_detective import scan_dump_risk
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("APP_SECRET_KEY", "change-this-in-production")
@@ -208,6 +209,7 @@ HTML = """
       ["alpha", "Alpha"],
       ["multi", "多链"],
       ["safety", "安全"],
+      ["dump", "出货侦探"],
       ["copy", "跟单"],
       ["joint", "共同账户"],
       ["post", "发推"],
@@ -412,6 +414,25 @@ HTML = """
             </section>`;
         }
 
+        if (page === "dump") {
+          content.innerHTML = `
+            <section class="card">
+              <h2>DumpDetective 一键出货检测</h2>
+              <p class="muted">输入合约地址，一次请求自动完成合约审计、卖压、聪明钱、热度、项目方钱包可用性检查。</p>
+              <div class="row">
+                <input id="ddContract" placeholder="0x... 合约地址" />
+                <select id="ddChain">
+                  <option value="bsc">BSC</option>
+                  <option value="base">Base</option>
+                  <option value="solana">Solana</option>
+                </select>
+                <input id="ddCreator" placeholder="(可选) creator 钱包地址" />
+                <button class="btn" onclick="runDumpDetective()">一键扫描</button>
+              </div>
+              <pre id="ddResult" style="margin-top:10px"></pre>
+            </section>`;
+        }
+
         if (page === "copy") {
           const data = await apiGet("/api/signals/solana");
           content.innerHTML = `
@@ -569,6 +590,19 @@ HTML = """
       const addr = document.getElementById("tokenAddr").value || "test";
       const data = await apiGet("/api/honeypot/" + encodeURIComponent(addr));
       document.getElementById("tokenResult").innerHTML = `<pre>${data.report}</pre>`;
+    }
+
+    async function runDumpDetective() {
+      const contract = (document.getElementById("ddContract").value || "").trim();
+      const chain = document.getElementById("ddChain").value;
+      const creator = (document.getElementById("ddCreator").value || "").trim();
+      if (!contract) {
+        alert("请输入合约地址");
+        return;
+      }
+      const payload = { contract_address: contract, chain, creator_address: creator || null };
+      const data = await apiPost("/api/dump-detective/scan", payload);
+      document.getElementById("ddResult").textContent = JSON.stringify(data, null, 2);
     }
 
     async function createJoint() {
@@ -949,6 +983,20 @@ def post(symbol):
 def alpha():
     try:
         return api_ok({"report": get_alpha_signals()})
+    except Exception as e:
+        return api_ok({"error": str(e)}, 400)
+
+
+@app.route("/api/dump-detective/scan", methods=["POST"])
+def dump_detective_scan():
+    try:
+        payload = request.get_json(force=True) or {}
+        contract_address = str(payload.get("contract_address", "")).strip()
+        chain = str(payload.get("chain", "bsc")).strip().lower()
+        creator_address = payload.get("creator_address")
+        creator_address = str(creator_address).strip() if creator_address else None
+        result = scan_dump_risk(contract_address=contract_address, chain=chain, creator_address=creator_address)
+        return api_ok(result)
     except Exception as e:
         return api_ok({"error": str(e)}, 400)
 
