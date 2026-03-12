@@ -1,6 +1,6 @@
 # 工作流示例
 
-下面这 4 个工作流参考 Binance 官方 workflows 思路，但全部映射到当前仓库已有能力。
+下面这 8 个工作流参考 Binance 官方 workflows 思路，并映射到当前仓库已有能力与可扩展方向。
 
 ---
 
@@ -122,3 +122,101 @@
 - `/api/workflows/deep-dive/<symbol>`
 - `/api/workflows/onchain-intel/<address>`
 - `/api/workflows/meme-hunter?chain=solana`
+- `/api/workflows/alpha-scout?limit=20`
+- `/api/workflows/futures-execution/<symbol>`
+- `/api/workflows/margin-playbook/<symbol>`
+- `/api/workflows/asset-ops-overview`
+
+---
+
+## 5. Alpha Scout（Alpha 市场雷达）
+
+### 目标
+围绕 Binance 最新的 Alpha 市场数据能力，快速筛出值得继续研究的候选币。
+
+### 组合 Skills
+- Alpha Market Data
+- Market Rank
+- Trading Signal
+- Token Audit
+
+### 推荐步骤
+1. `Alpha Market Data`：拉取 Alpha 候选池、24h 统计和 K 线
+2. `Market Rank`：确认是否同时具备市场关注度与成交额
+3. `Trading Signal`：判断趋势、节奏和关键位
+4. `Token Audit`：对高风险小币做快速排雷
+5. 输出观察池：立即研究 / 继续观察 / 放弃
+
+### 适合场景
+- 用户问：`最近 Binance Alpha 有什么值得看？`
+- 做活动演示时，需要快速展示“从发现到筛选”的完整链路
+
+---
+
+## 6. Futures Execution Planner（U 本位合约执行规划）
+
+### 目标
+把 U 本位合约的市场数据、资金费率和风控建议整合成一份可执行计划。
+
+### 组合 Skills
+- Alpha Market Data
+- Trading Signal
+- USDⓈ-M Futures Trading
+
+### 推荐步骤
+1. `Alpha Market Data`：看最近走势和成交热度
+2. `Trading Signal`：确定偏多/偏空与关键支撑阻力
+3. `USDⓈ-M Futures Trading`：补充标记价、资金费率、保证金需求和杠杆建议
+4. 生成计划：方向、仓位、止损、止盈、失效条件
+5. 若接真实交易，优先测试网验证
+
+### 适合场景
+- 用户问：`帮我做一份 BTCUSDT 的 U 本位合约计划`
+- 比赛答辩时展示“数据 + 信号 + 风控”闭环
+
+---
+
+## 7. Margin Playbook（杠杆交易作战手册）
+
+### 目标
+为全仓/逐仓杠杆交易生成安全边界清晰的操作方案。
+
+### 组合 Skills
+- Token Info
+- Trading Signal
+- Margin Trading
+- Asset Management
+
+### 推荐步骤
+1. `Token Info`：确认标的和基础波动情况
+2. `Trading Signal`：判断是否值得做以及怎么做
+3. `Margin Trading`：计算保证金需求、建议杠杆、逐仓/全仓模式
+4. `Asset Management`：核对账户是否有足够且合理的资产配置
+5. 输出最终建议：不开单 / 小仓逐仓 / 谨慎全仓
+
+### 适合场景
+- 用户问：`这单用逐仓还是全仓更合适？`
+- 需要把“想做”转成“能不能安全地做”
+
+---
+
+## 8. Asset Ops Overview（资产管理总览）
+
+### 目标
+把账户余额、资产分布、手续费优化和潜在资产操作入口整合成一页总览。
+
+### 组合 Skills
+- Asset Management
+- Spot
+- USDⓈ-M Futures Trading
+
+### 推荐步骤
+1. `Asset Management`：读取余额、估值和持仓集中度
+2. 标记主要资产、闲置资产和高风险敞口
+3. `Spot`：如果需要做现货调仓，生成执行建议
+4. `USDⓈ-M Futures Trading`：如果有合约暴露，补充风险视角
+5. 输出账户建议：保持 / 降风险 / 调仓 / 继续观察
+
+### 适合场景
+- 用户问：`帮我看下账户现在健康吗？`
+- 演示统一资产视图与风险提示能力

@@ -19,8 +19,13 @@ Binance AI 交易助手，包含 **Web 仪表盘、API 服务、Telegram Bot、C
 - 集成 DumpDetective：一键出货风险扫描
 
 ### 参赛包装增强
-- 新增 **7 个 Binance 风格 Skills 文档**
-- 新增 **4 个工作流示例**（Daily Briefing / Deep Dive / On-Chain Intel / Meme Hunter）
+- 新增 **11 个 Binance 风格 Skills 文档**
+- 其中补齐 Binance 最新公告提到的 **4 个新能力**：
+  - **Alpha Market Data**：代币列表、交易信息、K 线、24h 统计
+  - **USDⓈ-M Futures Trading**：合约市场数据、资金费率、标记价格、订单簿、交易执行规划
+  - **Margin Trading**：全仓/逐仓杠杆决策、保证金预算、风险约束
+  - **Asset Management**：账户余额、资产总览、充提/手续费/碎币转换入口设计
+- 新增 **8 个工作流示例**（原 4 个 + Alpha Scout / Futures Execution Planner / Margin Playbook / Asset Ops Overview）
 - 新增 **Prompt Presets**，方便接入 Bot / Agent / API workflow
 - README 重新整理为更专业的产品文档结构
 - 新增 `.gitignore` 与 `SECURITY.md`，强化密钥与运行时文件保护
@@ -36,10 +41,44 @@ Binance AI 交易助手，包含 **Web 仪表盘、API 服务、Telegram Bot、C
 | Spot | `skills/spot.md` + `utils/binance_api.py` + 账户/下单相关能力 |
 | Address Info | `skills/address-info.md` + 多链扫描 / 链上扩展接口 |
 | Meme Rush | `skills/meme-rush.md` + `multi_chain_scanner` + `alpha_radar` |
+| **Alpha Market Data（新增）** | `skills/alpha-market-data.md` + `get_binance_alpha_tokens()` / `get_24h_ticker()` / `get_klines()` |
+| **USDⓈ-M Futures Trading（新增）** | `skills/usdt-m-futures.md` + `FUTURES_BASE_URL` / `get_funding_rate()` / futures 风控与计划逻辑 |
+| **Margin Trading（新增）** | `skills/margin-trading.md` + `user_guardrails` / `trading_advisor` / 账户视图 |
+| **Asset Management（新增）** | `skills/asset-management.md` + `get_account_balance()` / `portfolio-tracker` / `/api/balance` |
 | Daily Briefing | `examples/workflows.md` |
 | Deep Dive | `examples/workflows.md` |
 | On-Chain Intel | `examples/workflows.md` |
 | Meme Hunter | `examples/workflows.md` |
+| **Alpha Scout（新增）** | `examples/workflows.md` |
+| **Futures Execution Planner（新增）** | `examples/workflows.md` |
+| **Margin Playbook（新增）** | `examples/workflows.md` |
+| **Asset Ops Overview（新增）** | `examples/workflows.md` |
+
+## 新增 4 个 Binance 能力，一眼看懂
+
+### 1. Alpha Market Data
+- Alpha 候选代币列表
+- 单币交易信息、24h 统计
+- K 线图与热度观察
+- 适合作为“发现 → 分析”的第一步
+
+### 2. USDⓈ-M Futures Trading
+- 合约市场数据、订单簿、资金费率、标记价格
+- 合约交易计划：方向、杠杆、止损、止盈
+- 支持主网 / 测试网的接入设计说明
+- 当前仓库更偏“数据 + 风控 + 执行规划”能力
+
+### 3. Margin Trading
+- 全仓 / 逐仓杠杆模式决策
+- 保证金预算与风险约束
+- 杠杆交易工作流骨架
+- 为借还款、OCO / OTO / OTOCO 等扩展预留接口空间
+
+### 4. Asset Management
+- 账户余额、持仓估值、资产集中度
+- 充提、BNB 抵扣、碎币转换等入口设计
+- 适合作为现货、合约、杠杆前的统一资产视图
+- 默认强调只读优先与禁止提现权限
 
 ## 功能概览
 
@@ -194,6 +233,10 @@ python post_generator/main.py BTC
 - `skills/spot.md`
 - `skills/address-info.md`
 - `skills/meme-rush.md`
+- `skills/alpha-market-data.md`
+- `skills/usdt-m-futures.md`
+- `skills/margin-trading.md`
+- `skills/asset-management.md`
 - `skills/README.md`
 
 ### Workflows
@@ -257,16 +300,18 @@ curl "http://localhost:3000/api/top?limit=10"
 
 本仓库已按以下原则整理：
 
-- **不在文档中暴露真实 API Key**
+- **不在文档、示例或代码中暴露真实 API Key**
 - **默认通过环境变量注入密钥**
-- **新增 `.gitignore` 忽略 `.env`、数据库、缓存与 Python 编译文件**
-- README 和示例中仅保留占位符，不放真实凭证
+- **`.gitignore` 已忽略 `.env`、数据库、缓存与 Python 编译文件**
+- README、`.env.example` 和各子模块文档中仅保留占位符，不放真实凭证
+- 资产管理、现货、合约、杠杆相关说明里统一强调：**不要开启提现权限**
 
 建议：
 1. Binance API 仅开启读取或最小必要交易权限
 2. **不要开启提现权限**
 3. 为 Bot / 自动化账号单独创建 API Key
 4. 生产环境把密钥放到 CI/CD Secret 或部署平台 Secret Manager
+5. 对真实下单、借贷、资产划转等能力增加二次确认与审计日志
 
 ## 常见问题
 
